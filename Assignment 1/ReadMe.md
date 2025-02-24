@@ -20,21 +20,21 @@
 
 
 ### Compilation/running instructions:
-to compile 3000textui_q4.c:
-gcc -z lazy -o 3000textui_q4 3000textui_q4.c -l3000ping -lcurses -L.
+to compile 3000textui_q4.c: <br />
+gcc -z lazy -o 3000textui_q4 3000textui_q4.c -l3000ping -lcurses -L.<br />
 
-to run 3000textui_q4.c:
-./3000textui_q4
-Or IP=9.9.9.9 ./3000textui
+to run 3000textui_q4.c: <br />
+./3000textui_q4<br />
+Or IP=9.9.9.9 ./3000textui<br />
 
-to compile 3000textui_q5.c:
-gcc -z lazy -o 3000textui_q5 3000textui_q5.c -l3000ping -lcurses -L.
+to compile 3000textui_q5.c:<br />
+gcc -z lazy -o 3000textui_q5 3000textui_q5.c -l3000ping -lcurses -L.<br />
 
-to run 3000textui_q4.c:
-./3000textui_q5
-Or IP=9.9.9.9 ./3000textui
+to run 3000textui_q4.c:<br />
+./3000textui_q5<br />
+Or IP=9.9.9.9 ./3000textui<br />
 
-to compile 3000memview_q2.c:
-gcc -o 3000memview_q2 3000memview_q2.c
-./3000memview_q2
+to compile 3000memview_q2.c:<br />
+gcc -o 3000memview_q2 3000memview_q2.c<br />
+./3000memview_q2<br />
 Note: currently the KiB is set to <200 you can also test with >200 to confirm it is the new threshold.
