@@ -1,0 +1,62 @@
+*** 3000textuioriginal.c	2025-01-30 16:55:50.686583581 -0500
+--- 3000textui_q5.c	2025-01-31 12:06:15.481045071 -0500
+***************
+*** 19,26 ****
+  extern int execvpe(const char *file, char *const argv[], char *const envp[]);
+  extern char **environ;
+  
+! char *options[] = {
+! 	"Ping 8.8.8.8",
+  	"Run htop",
+  	"Clear screen",
+  	"Exit"
+--- 19,26 ----
+  extern int execvpe(const char *file, char *const argv[], char *const envp[]);
+  extern char **environ;
+  
+! char options[4][50] = {
+! 	"Ping",
+  	"Run htop",
+  	"Clear screen",
+  	"Exit"
+***************
+*** 30,35 ****
+--- 30,41 ----
+  
+  int main()
+  {
++ 	//get the ip address from the env var or use default
++ 	char *ip_address = getenv("IP");
++ 	if(ip_address == NULL){
++ 		ip_address = "8.8.8.8";
++ 	}
++ 	snprintf(options[0], sizeof(options[0]), "Ping %s", ip_address);
+  
+  	printf("Press any key to continue...\n");
+  	getchar();
+***************
+*** 95,104 ****
+  	endwin();           /* End curses mode   */
+  	
+         if (0 == selected) {
+  #ifdef __linux__
+! 	       ping("8.8.8.8");
+! #else
+! 	       printf("Ping not supported for now.\n");
+  #endif 
+  	       exit(0);
+         }
+--- 101,113 ----
+  	endwin();           /* End curses mode   */
+  	
+         if (0 == selected) {
++ char ping_command[100];
+  #ifdef __linux__
+! 	       	snprintf(ping_command, sizeof(ping_command), "ping %s", ip_address);
+!         	system(ping_command);
+! #elif defined(_WIN32)
+! 	       	snprintf(ping_command, sizeof(ping_command), "ping -t %s", ip_address);
+!             system(ping_command);
+  #endif 
+  	       exit(0);
+         }

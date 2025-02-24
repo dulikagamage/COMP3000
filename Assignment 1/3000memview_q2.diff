@@ -1,0 +1,46 @@
+*** 3000memview.c	2021-01-22 01:05:59.000000000 -0500
+--- 3000memview_q2.c	2025-01-30 16:57:12.057136711 -0500
+***************
+*** 1,6 ****
+--- 1,7 ----
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <unistd.h>
++ #include <malloc.h>
+  
+  char *gmsg = "Global Message";
+  
+***************
+*** 8,13 ****
+--- 9,22 ----
+  
+  int main(int argc, char *argv[], char *envp[])
+  {
++ 	//new threshold using mallopt
++ 	int new_threshold = 200*1024;
++ 	if(mallopt(M_MMAP_THRESHOLD, new_threshold)){
++ 		printf("New mmap threshold set toL %d bytes\n", new_threshold);
++ 	} else{
++ 		printf("Failed to set new threshold");
++ 	}
++ 
+          char *lmsg = "Local Message";
+          char *buf[buffer_size];
+          int i;
+***************
+*** 29,35 ****
+          printf("&buf:      %lx\n", (unsigned long) &buf);
+  
+          for (i = 0; i<buffer_size; i++) {
+!                 buf[i] = (char *) malloc(4096);
+          }
+          
+          printf("buf[0]:    %lx\n", (unsigned long) buf[0]);
+--- 38,44 ----
+          printf("&buf:      %lx\n", (unsigned long) &buf);
+  
+          for (i = 0; i<buffer_size; i++) {
+!                 buf[i] = (char *) malloc(199*1024);//i tested with both 199 and 200 and it uses brk for 199 and mmap for 200
+          }
+          
+          printf("buf[0]:    %lx\n", (unsigned long) buf[0]);

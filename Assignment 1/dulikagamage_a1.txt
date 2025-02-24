@@ -1,0 +1,87 @@
+PART 1:
+1.  
+
+For my understanding: This command makes the path for the env var for library calls whatever directory you specify. 
+    (https://www.geeksforgeeks.org/how-to-set-the-environmental-variable-ld_library_path-in-linux/)
+    
+To change it a different way you could set this is to update the dynamic linker run-time bindings by editing the linker configuration files:
+The Commands I used are:
+"sudo nano /etc/ld.so.conf.d/mycustomlibs.conf": To access (edit) the config file
+"/home/studen/a1": Then I added this line so the config file would know where to look for libraries
+then I ctrl+X (exit) to and said yes to save the changes
+"cat /etc/ld.so.conf.d/mycustomlibs.conf": So I could ensure the changes were made to the file
+"sudo ldconfig": To update the linker cache
+"sudo ldconfig -v | grep /home/student/a1": I confirmed the last step worked by running this command
+"ldconfig -p | grep lib3000ping.so" I verified that one of the libraries was there using grep.
+    
+(https://unix.stackexchange.com/questions/168340/where-is-ld-library-path-how-do-i-set-the-ld-library-path-env-variable) - resource
+    
+2.  
+
+I used the readelf command (from class) and I read the man page to find what I could use to see versions using symbols (-s and --version-info).
+We know that lib3000ping.so version isn't matching up with what 3000textui is expecting so we need to check the version.
+"readelf -s --version-info ./lib3000ping.so | grep VERSION": we grep VERSION because otherwise the output is too big.
+from this we can see VERSION_1.1, which as I guessed before, doesn't match up with 3000textui's expected version of 1.2
+    
+3.  
+
+Using the "gcc -fpic -shared -o lib3000ping.so 3000ping.c" command provided, I made some adjustments so it would also update the version. 
+
+"gcc -fpic -shared -o lib3000ping.so -Wl,--version-script=version1.2 3000ping.c": I added -shared which tells the compiler it's a shared library (.so). -Wl,--version-script=version1.2 specififies that we're passing version 1.2 (--version-script=version1.2) to the linker (-Wl).
+Then after running that cmd I double checked the version using the cmd in q2 to verify (VERSION_1.2 was the output, so we know it worked) and
+I updated the linker cache like in q1
+I tested the final changes by running ./3000textui again which worked this time (it did).
+
+(https://man7.org/conf/lca2006/shared_libraries/slide18c.html)
+    
+4.  See 3000textui_q4.c
+
+5.  See 3000textui_q5.c
+
+6.  
+
+"strace ping ./3000textui" I used strace to trace what system calls the ping was making. This showed me that the program was using a recvmsg() for inbound and sendto() for outbound network system calls. (I used the man page to see what they did)
+Additionally, it showed me that the program was using read() for console input and write() for console output. (I used the man page to see what they did)
+
+examples:
+recvmsg(5, {msg_name=NULL, msg_namelen=0, msg_iov=[{iov_base="hosts\0", iov_len=6}, {iov_base="\310O\3\0\0\0\0\0", iov_len=8}], msg_iovlen=2, msg_control=[{
+sendto(5, "\2\0\0\0\r\0\0\0\6\0\0\0hosts\0", 18, MSG_NOSIGNAL, NULL, 0) = 18
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\0\0\0\0\0\0\0\0"..., 832) = 832
+write(2, "./3000textui: Name or service no"..., 39./3000textui: Name or service not known) = 39
+
+7. 
+
+The difference between the function and library calls in 3000ping.s is that function calls (ex. pr_addr) are made internally and are resolved statically (since there's no @PLT in the .s file when it's called) and library calls (ex. printf) are made externally, requiring dynamic linking (since there is @PLT in the .s file when it's called). 
+
+8. 
+
+We need to distinguish the two cases because Linux and Windows handle process creation and execution differently. 
+
+On Linux, execvpe() is used to replace the current process with a new one. "clear" and "htop" are standalone executables located somewhere in the system's PATH, such as /usr/bin/clear or /usr/bin/htop. When you call execvpe("clear", ...) or execvpe("htop", ...), execvpe finds the executable and starts the program directly without needing any other shell involvement. Linux also has system() but we avoid it since execvpe has less overhead and security vulnerabilities. 
+
+Whereas on Windows, system() is used to execute a command in a shell, this creates a new process and waits for it to complete. Specifically, we need to use system() for Windows because "cls" and "htop" are specific to cmd.exe and need to be interpreted by the shell. They are not standalone executables and cannot be called by something like execvpe like on POXIS. 
+
+Therefore, using system() for Windows ensures compatibility with its process model, which involves shell-based execution, while execvpe on Linux provides more direct control over process execution.
+
+https://www.oreilly.com/library/view/secure-programming-cookbook/0596003943/ch01s07.html#:~:text=The%20system(%20)%20function%20works%20differently,the%20new%20process%20to%20terminate.
+
+PART 2:
+
+1. 
+
+When the allocation size exceeds 128KiB, malloc() no longer uses brk() to expand the heap, instead it switches to mmap() to allocate memory in regions outside the heap. I found this by changing the malloc to 128KiB instead of 4KiB (from malloc(4096) to malloc(128*1024)). Then, using strace I observed multiple mmap() calls instead of brk(). 
+Ex. Before:
+brk(0x55c7a0fa2000)                     = 0x55c7a0fa2000
+
+ex. After: 
+mmap(NULL, 135168, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7efdcbaa3000
+
+2. See 3000memview_q2.c
+
+Resources: https://stackoverflow.com/questions/72263939/changing-m-mmap-threshold-and-allocating-memory-above-and-below-it
+I also used man for mallopt
+
+ 
+   
+    
+    

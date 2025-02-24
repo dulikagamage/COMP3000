@@ -1,0 +1,53 @@
+*** 3000textuioriginal.c	2025-01-30 16:55:50.686583581 -0500
+--- 3000textui_q4.c	2025-01-30 16:56:27.217934027 -0500
+***************
+*** 19,26 ****
+  extern int execvpe(const char *file, char *const argv[], char *const envp[]);
+  extern char **environ;
+  
+! char *options[] = {
+! 	"Ping 8.8.8.8",
+  	"Run htop",
+  	"Clear screen",
+  	"Exit"
+--- 19,26 ----
+  extern int execvpe(const char *file, char *const argv[], char *const envp[]);
+  extern char **environ;
+  
+! char options[4][50] = {
+! 	"Ping",
+  	"Run htop",
+  	"Clear screen",
+  	"Exit"
+***************
+*** 30,35 ****
+--- 30,41 ----
+  
+  int main()
+  {
++ 	//get the ip address from the env var or use default
++ 	char *ip_address = getenv("IP");
++ 	if(ip_address == NULL){
++ 		ip_address = "8.8.8.8";
++ 	}
++ 	snprintf(options[0], sizeof(options[0]), "Ping %s", ip_address);
+  
+  	printf("Press any key to continue...\n");
+  	getchar();
+***************
+*** 96,102 ****
+  	
+         if (0 == selected) {
+  #ifdef __linux__
+! 	       ping("8.8.8.8");
+  #else
+  	       printf("Ping not supported for now.\n");
+  #endif 
+--- 102,108 ----
+  	
+         if (0 == selected) {
+  #ifdef __linux__
+! 	       ping(ip_address);
+  #else
+  	       printf("Ping not supported for now.\n");
+  #endif 
