@@ -22,7 +22,7 @@ sudo chmod u+s <executable> <br />
 compile 3000userlogin_q1.c:<br />
 	gcc -o 3000userlogin_q1 3000userlogin_q1.c - lpam -lpam_misc
 run 3000userlogin_q1.c:<br />
-	./3000userlogin_q1 <username>
+	./3000userlogin_q1 < username >
 
 compile 3000userlogin_q2.c:<br />
         gcc -o 3000userlogin_q2 3000userlogin_q2.c - lpam -lpam_misc
