@@ -1,7 +1,7 @@
 # COMP 3000 Assignment 2
 ## Dulika Gamage 101263208
 
-Files included:
+### Files included:
 - README.txt
 - dulikagamage_a2.txt
 	- answers to all written questions
@@ -14,7 +14,7 @@ Files included:
 - 30000shell_q2.c & 3000shell_q2.diff
 	- code for part 2 question 2 and the diff file from the base code
 
-Compilation/running instructions:
+### Compilation/running instructions:
 Note: some may need root permissions, you can set up using:
 sudo chown root:root <executable>
 sudo chmod u+s <executable>
