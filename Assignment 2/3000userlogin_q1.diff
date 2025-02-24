@@ -1,0 +1,64 @@
+*** 3000userlogin.c	2021-02-06 13:11:42.000000000 -0500
+--- 3000userlogin_q1.c	2025-02-23 17:05:55.223851884 -0500
+***************
+*** 6,11 ****
+--- 6,18 ----
+  #include <unistd.h>
+  #include <stdlib.h>
+  #include <pwd.h>
++ #include <security/pam_appl.h>
++ #include <security/pam_misc.h>
++ 
++ static struct pam_conv conv = {
++     misc_conv,
++     NULL
++ };
+  
+  int main(int argc, char *argv[])
+  {
+***************
+*** 14,19 ****
+--- 21,28 ----
+          char *username;
+          extern char **environ;
+          struct passwd *pw_entry;
++ 	pam_handle_t *pamh = NULL;
++    	int pam_result;
+                  
+          if (argc < 2) {
+                  fprintf(stderr, "Usage: %s <username>\n", argv[0]);
+***************
+*** 25,32 ****
+  
+          username = argv[1];
+          
+!         pw_entry = getpwnam(username);
+!         if (pw_entry == NULL) {
+                  fprintf(stderr, "Could not find user %s.\n", username);
+                  exit(-2);
+          }
+--- 34,57 ----
+  
+          username = argv[1];
+          
+! 	pam_result = pam_start("3000userlogin", username, &conv, &pamh);
+!     	if (pam_result != PAM_SUCCESS) {
+!         	fprintf(stderr, "PAM initialization failed\n");
+!         	exit(-1);
+!     	}
+! 	
+! 	 pam_result = pam_authenticate(pamh, 0);
+!     	if (pam_result != PAM_SUCCESS) {
+!         	fprintf(stderr, "Authentication failed.\n");
+!         	pam_end(pamh, pam_result);
+!         	exit(-1);
+!     	}
+! 
+!     	pam_end(pamh, PAM_SUCCESS);
+!         
+! 	pw_entry = getpwnam(username);
+! 	
+! 	if (pw_entry == NULL) {
+                  fprintf(stderr, "Could not find user %s.\n", username);
+                  exit(-2);
+          }

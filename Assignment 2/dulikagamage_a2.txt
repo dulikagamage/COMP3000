@@ -1,0 +1,57 @@
+COMP 3000 Assignment 02
+Dulika Gamage 101263208
+
+PART 1:
+
+1. see 3000userlogin_q1.c
+
+2. see 3000userlogin_q2.c
+
+3. We can't remove setuid in the code because authentication through PAM only verifies the authentication of a user but it can't change a user's identity. So, if we remove it the user will remain as the uid of who's running which means the process won't transition to the authenticated user or euid.
+
+(Reference: lectures, man)
+
+4. Question one works because the program just starts a shell as a user which doesn't use any higher privelege. However, for question 2, it won't work because in order to change a password you need root priveleges since etc/shadow (where the hashed passwords are stored) can only be written to by the root user.
+	ls -l /etc/shadow
+	-rw-r----- 1 root shadow 1670 Feb 23 22:39 /etc/shadow
+
+(Reference: lectures)
+
+5. if you remove the -s flag then we just have a hardlink which is essentially just another name for the same file. Since both the symbolic link adn the hard link would point to 3000userlogin_q2, they'd behave identically. We don't need to redo the setuid root because its set on the original file, not the links. Whether it's a hard link or a soft link, both refer to 3000userlogin_q2 which retains the setuid root. They both inherit the permissions.
+
+(Reference: lectures)
+
+PART 2:
+
+1. See 3000shell_q1.c
+The system call when creating a child process is clone() (which is like fork()) and then it uses wait(). 
+Before changes:
+	student $ asdf
+	clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, 
+	child_tidptr=0x7f665e780a10) = 25508
+	wait4(-1, No such file or directory
+	NULL, 0, NULL)                = 25508
+	--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=25508, si_uid=1000, si_status=127, 
+	si_utime=0, si_stime=0} ---
+	wait4(-1, 0x7ffedf631f60, 0, NULL)      = -1 ECHILD (No child processes)
+After changes:
+	student $ asdf 
+	Command not found: asdf
+
+	student $ ls
+	clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, 	
+	child_tidptr=0x7f0105db5a10) = 25497
+	wait4(-1, 3000chpwd  3000shell	3000shell_q1	3000userlogin	 3000userlogin_q1    	
+	3000userlogin_q2
+	3000login  3000shell.c	3000shell_q1.c	3000userlogin.c  3000userlogin_q1.c  	
+	3000userlogin_q2.c
+	NULL, 0, NULL)                = 25497
+	--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=25497, si_uid=1000, si_status=0, 	
+	si_utime=0, si_stime=0} ---
+	wait4(-1, 0x7ffe55638be0, 0, NULL)      = -1 ECHILD (No child processes)
+
+2. See 3000shell_q2.c
+
+3. The way that 3000shell uses to get the value of an environment variable is find_env() (similar to the common getenv()). Two other ways include getenv() and environ(). find_env() is our custom function in 3000shell which is used to parse the envp array that has the environment vars that are passed to the program. getenv() gets the value of an environment var by it's name and returns NULL if the var isn't found. Environ is a var pointer to an array of strings which represent the environment vars.
+
+(Reference: lectures, 3000shell.c)

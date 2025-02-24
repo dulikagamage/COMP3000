@@ -1,0 +1,30 @@
+*** 3000shell.c	2021-01-22 00:57:39.000000000 -0500
+--- 3000shell_q1.c	2025-02-24 09:25:57.382548000 -0500
+***************
+*** 223,228 ****
+--- 223,237 ----
+          pid_t pid;
+          int fd, *ret_status = NULL;
+          char bin_fn[BUFFER_SIZE];
++ 	
++ 	// find binary before cloning/forking
++ 	find_binary(args[0], path, bin_fn, BUFFER_SIZE);
++ 	
++ 	//check if the command exists, don't create child if it doesn't
++ 	if (access(bin_fn, X_OK) != 0) {
++ 		fprintf(stderr, "Command not found: %s\n", args[0]);
++ 		return;
++ 	}
+  
+          pid = fork();
+          if (pid) {
+***************
+*** 234,240 ****
+                          pid = wait(ret_status);
+                  }
+          } else {
+-                 find_binary(args[0], path, bin_fn, BUFFER_SIZE);
+  
+                  if (stdout_fn != NULL) {
+                          fd = creat(stdout_fn, 0666);
+--- 243,248 ----

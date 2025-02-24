@@ -1,0 +1,48 @@
+*** 3000shell.c	2021-01-22 00:57:39.000000000 -0500
+--- 3000shell_q2.c	2025-02-24 09:59:22.727311377 -0500
+***************
+*** 259,267 ****
+          char *s;
+          int i, j;
+          char *stdout_fn;
+!         
+          while(1){
+!                 printf("%s $ ", username);
+                  s = fgets(buffer, BUFFER_SIZE, stdin);
+                  
+                  if (s == NULL) {
+--- 259,269 ----
+          char *s;
+          int i, j;
+          char *stdout_fn;
+!         char cwd[1024];
+!  
+          while(1){
+! 		getcwd(cwd, sizeof(cwd));
+!                 printf("%s:%s $ ", username,cwd);
+                  s = fgets(buffer, BUFFER_SIZE, stdin);
+                  
+                  if (s == NULL) {
+***************
+*** 278,283 ****
+--- 280,299 ----
+                          exit(0);
+                  }
+                  
++ 		if(!strcmp(args[0], "cd")){
++ 			char *dir;
++ 			if(nargs == 1){
++ 				dir = getenv("HOME");
++ 			}else{
++ 				dir = args[1];
++ 			}
++ 
++ 			if(chdir(dir)!=0){
++ 				perror("cd failed");
++ 			}
++ 			continue;
++ 		}
++ 
+                  if (!strcmp(args[0], "plist")) {
+                          plist();
+                          continue;
